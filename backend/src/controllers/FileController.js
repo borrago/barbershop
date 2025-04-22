@@ -1,0 +1,21 @@
+const { File } = require('../models');
+
+class FileController {
+  async store(req, res) {
+    try {
+      const { originalname: name, filename: path } = req.file;
+
+      const file = await File.create({
+        name,
+        path,
+        barbershop_id: req.barbershop_id,
+      });
+
+      return res.json(file);
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+}
+
+module.exports = new FileController(); 
