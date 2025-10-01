@@ -37,7 +37,7 @@ services:
       - app-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`https://whizconnect.com.br/`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.rule=Host(`whizconnect.com.br/`) && PathPrefix(`/api`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
       - "traefik.http.services.backend.loadbalancer.server.port=3001"
@@ -55,7 +55,7 @@ services:
       - app-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`https://whizconnect.com.br/`)"
+      - "traefik.http.routers.frontend.rule=Host(`whizconnect.com.br/`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
