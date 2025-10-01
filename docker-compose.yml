@@ -52,7 +52,7 @@ services:
     networks:
       - app-network
     environment:
-      - VITE_API_URL=https://whizconnect.com.br/api
+      - VITE_API_URL=https://whizconnect.com.br
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`whizconnect.com.br`)"
