@@ -37,7 +37,7 @@ services:
       - app-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`whizconnect.com.br/`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.rule=Host(`whizconnect.com.br`) && PathPrefix(`/api`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
       - "traefik.http.services.backend.loadbalancer.server.port=3001"
@@ -47,15 +47,15 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    environment:
-      - VITE_API_URL=https://your_domain.com.br
     depends_on:
       - backend
     networks:
       - app-network
+    environment:
+      - VITE_API_URL=https://whizconnect.com.br/api
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`whizconnect.com.br/`)"
+      - "traefik.http.routers.frontend.rule=Host(`whizconnect.com.br`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
@@ -71,6 +71,10 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      # redirecionar http -> https (opcional mas recomendado)
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      # ACME (http-01 na porta 80)
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.letsencrypt.acme.email=admin@whizconnect.com.br"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
@@ -83,7 +87,7 @@ services:
       - "./letsencrypt:/letsencrypt"
     networks:
       - app-network
-
+      
 networks:
   app-network:
     driver: bridge
