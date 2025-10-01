@@ -171,10 +171,10 @@ docker-compose logs -f backend
 
 ## Subir na VPS
 
-sudo apt install -y git
-sudo apt update
-snap install docker
-mkdir -p ~/apps && cd ~/apps
-git clone https://github.com/borrago/barbershop.git
-cd barbershop
-docker compose up -d --build
+1. sudo apt install -y git
+2. sudo apt update
+3. snap install docker
+4. mkdir -p ~/apps && cd ~/apps
+5. git clone https://github.com/borrago/barbershop.git
+6. cd barbershop
+7. docker compose up -d --build
