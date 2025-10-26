@@ -1,96 +1,84 @@
-version: '3.8'
+# docker-compose.yml — DropEntregas
+# (sem "version" para evitar warning do Compose v2)
+
+networks:
+  traefik:
+    external: true
+  backend:
+    external: true
 
 services:
-  db:
-    image: postgres:15-alpine
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=barbershop
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  ###################################
+  # FRONT-END (Vite + Nginx)
+  ###################################
+  drop-front:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${DROP_API_PUBLIC_URL}
+    image: ${REGISTRY:+${REGISTRY}/}drop-front:${TAG:-latest}
+    restart: unless-stopped
     networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  backend:
-    build: ./backend
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - DB_HOST=db
-      - DB_USER=postgres
-      - DB_PASS=postgres
-      - DB_NAME=barbershop
-      - JWT_SECRET=your_jwt_secret
-    depends_on:
-      - db
-    networks:
-      - app-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`whizconnect.com.br`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.backend.loadbalancer.server.port=3001"
-
-  frontend:
-    build: ./frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    depends_on:
+      - traefik
       - backend
-    networks:
-      - app-network
-    environment:
-      - VITE_API_URL=https://whizconnect.com.br
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`whizconnect.com.br`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.drop-front.rule=Host(`${DROP_FRONT_HOST}`)
+      - traefik.http.routers.drop-front.entrypoints=https
+      - traefik.http.routers.drop-front.tls.certresolver=${CERT_RESOLVER}
+      - traefik.http.services.drop-front.loadbalancer.server.port=80
+    depends_on:
+      - drop-api
 
-  traefik:
-    image: traefik:v2.10
-    container_name: traefik
-    restart: always
-    command:
-      - "--api.dashboard=true"
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      # redirecionar http -> https (opcional mas recomendado)
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      # ACME (http-01 na porta 80)
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.email=admin@whizconnect.com.br"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./letsencrypt:/letsencrypt"
+  ###################################
+  # BACK-END (Express / Node)
+  ###################################
+  drop-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: ${REGISTRY:+${REGISTRY}/}drop-api:${TAG:-latest}
+    restart: unless-stopped
+    environment:
+      # Porta interna do app
+      PORT: ${DROP_API_PORT}
+
+      # Conexão com banco (Postgres da infra)
+      DATABASE_URL: ${DATABASE_URL}
+
+      # Configurações CORS e ambiente
+      CORS_ORIGINS: ${DROP_FRONT_ORIGIN}
+      NODE_ENV: production
+      SEED_ON_START: true
+    depends_on:
+      - wait-db
     networks:
-      - app-network
-      
-networks:
-  app-network:
-    driver: bridge
+      - traefik
+      - backend
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.drop-api.rule=Host(`${DROP_API_HOST}`)
+      - traefik.http.routers.drop-api.entrypoints=https
+      - traefik.http.routers.drop-api.tls.certresolver=${CERT_RESOLVER}
+      - traefik.http.services.drop-api.loadbalancer.server.port=${DROP_API_PORT}
 
-volumes:
-  postgres_data:
+  ###################################
+  # Espera pelos bancos do core
+  ###################################
+  wait-db:
+    image: alpine:3.20
+    command: >
+      sh -c "
+      echo '⏳ Aguardando Postgres...';
+      for i in `seq 1 60`; do nc -z postgres 5432 && break || sleep 2; done;
+      echo '⏳ Aguardando Mongo...';
+      for i in `seq 1 60`; do nc -z mongo 27017 && break || sleep 2; done;
+      echo '⏳ Aguardando MSSQL...';
+      for i in `seq 1 60`; do nc -z mssql 1433 && break || sleep 2; done;
+      echo '✅ Bancos disponíveis, prosseguindo!';
+      "
+    networks:
+      - backend
