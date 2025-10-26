@@ -168,3 +168,13 @@ frontend/
 5. Open a Pull Request 
 
 docker-compose logs -f backend 
+
+## Subir na VPS
+
+1. sudo apt install -y git
+2. sudo apt update
+3. snap install docker
+4. mkdir -p ~/apps && cd ~/apps
+5. git clone https://github.com/borrago/barbershop.git
+6. cd barbershop
+7. docker compose up -d --build
