@@ -1,3 +1,4 @@
+/* ======= LAYOUT ======= */
 .layout {
   display: flex;
   min-height: 100vh;
@@ -8,4 +9,127 @@
   margin-left: 250px;
   padding: 20px;
   background-color: #f5f6fa;
-} 
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* ======= FOCO E ACESSIBILIDADE ======= */
+:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px #FFD700;
+  outline-offset: 2px;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+:focus-visible {
+  box-shadow: 0 0 0 4px #FFD700;
+}
+
+button:focus,
+a:focus,
+input:focus,
+textarea:focus,
+select:focus,
+[tabindex="0"]:focus {
+  box-shadow: 0 0 0 4px #FFD700;
+  outline: none;
+}
+
+/* ======= TEMA CLARO ======= */
+body {
+  background-color: #ffffff;
+  color: #000000;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.card {
+  background-color: #f4f4f4;
+  color: #000000;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+button {
+  background-color: #2b2bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+button:hover {
+  background-color: #0000cc;
+}
+
+input,
+textarea,
+select {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* ======= TEMA ESCURO ======= */
+body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+/* CONTAINERS E CARDS */
+body.dark-mode .main-content {
+  background-color: #181818;
+  color: #e0e0e0;
+}
+
+body.dark-mode .card {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+  border: 1px solid #333;
+}
+
+/* CABEÇALHOS E TEXTOS */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode p,
+body.dark-mode label,
+body.dark-mode span {
+  color: #ffffff !important;
+}
+
+/* BOTÕES */
+body.dark-mode button {
+  background-color: #333 !important;
+  color: #ffffff !important;
+  border: 1px solid #555 !important;
+}
+
+body.dark-mode button:hover {
+  background-color: #444 !important;
+}
+
+/* INPUTS E FORMULÁRIOS */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background-color: #222 !important;
+  color: #ffffff !important;
+  border: 1px solid #555 !important;
+}
+
+/* LINKS */
+body.dark-mode a {
+  color: #4ea3ff !important;
+}
+
+body.dark-mode a:hover {
+  color: #82c0ff !important;
+}
+
+/* ======= TRANSIÇÃO SUAVE ======= */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

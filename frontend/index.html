@@ -1,14 +1,223 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
+    <style>
+    /* 1. VARIÁVEL CSS E CONFIGURAÇÃO BASE */
+    :root {
+        --font-scale: 1; /* Fator de escala inicial (1 = 100%) */
+        /* Define o tamanho base para o cálculo do rem */
+        font-size: 16px; 
+        transition: all 0.2s ease-in-out; /* Transição suave para o efeito */
+    }
+
+    /* 2. APLICAÇÃO DA VARIÁVEL (Use em todos os elementos de texto que você quer que mudem) */
+    
+    /* Parágrafos e texto base */
+    p {
+        /* font-size: 1rem * fator de escala */
+        font-size: calc(1rem * var(--font-scale));
+        line-height: calc(1.5 * var(--font-scale)); /* Ajusta a altura da linha também */
+        transition: font-size 0.2s;
+    }
+
+    /* Títulos de nível 1 (H1) */
+    h1 {
+        /* font-size: 2rem * fator de escala */
+        font-size: calc(2rem * var(--font-scale));
+        transition: font-size 0.2s;
+    }
+    
+    /* Estilos dos controles (Opcional: Garante que os botões ficam visíveis) */
+    .accessibility-controls {
+    position: fixed; 
+    bottom: 20px;     /* NOVO: Distância da parte inferior (20px para não ficar colado) */
+    right: 20px;      /* NOVO: Distância da direita (20px) */
+    top: auto;        /* Adicionado: Remove o posicionamento do topo */
+    z-index: 1000;
+    /* Adicione um fundo se quiser que ele se destaque */
+    background-color: #f0f0f0; 
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.accessibility-controls button {
+    /* ... mantenha seus estilos de botão aqui ... */
+    padding: 5px 10px;
+    margin-left: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    }
+    .accessibility-controls button {
+        padding: 5px 10px;
+        margin-left: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+</style>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Barbershop - Sistema de Gestão</title>
+    <button id="theme-toggle" style="position: fixed; top: 20px; right: 20px;">
+  🌙 Modo Escuro
+</button>
+
   </head>
   <body>
+    <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
     <noscript>Você precisa habilitar o JavaScript para executar este aplicativo.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <body>
+
+    <div class="accessibility-controls">
+        <button id="btn-decrease" title="Diminuir Fonte">A-</button>
+        <button id="btn-reset" title="Tamanho Padrão">A</button>
+        <button id="btn-increase" title="Aumentar Fonte">A+</button>
+    </div>
+    
+    <script>
+        const root = document.documentElement; // Representa a tag :root
+        const btnIncrease = document.getElementById('btn-increase');
+        const btnDecrease = document.getElementById('btn-decrease');
+        const btnReset = document.getElementById('btn-reset');
+
+        // Níveis de escala: 
+        // [0.8 = Pequena, 1 = Normal, 1.15 = Grande, 1.3 = Extra Grande]
+        const SCALES = [0.8, 1, 1.15, 1.3]; 
+        let currentLevel = 1; // Começa no índice 1 (escala 1 = 100%)
+
+        // --- Funções Principais ---
+
+        function applyScale() {
+            const newScale = SCALES[currentLevel];
+            // Altera a variável CSS global --font-scale
+            root.style.setProperty('--font-scale', newScale);
+            
+            // Salva a preferência do usuário no navegador (Local Storage)
+            localStorage.setItem('fontLevel', currentLevel);
+        }
+
+        // --- Eventos dos Botões ---
+        
+        // AUMENTAR (A+)
+        btnIncrease.addEventListener('click', () => {
+            // Verifica se não está no nível máximo
+            if (currentLevel < SCALES.length - 1) {
+                currentLevel++;
+                applyScale();
+            }
+        });
+
+        // DIMINUIR (A-)
+        btnDecrease.addEventListener('click', () => {
+            // Verifica se não está no nível mínimo
+            if (currentLevel > 0) {
+                currentLevel--;
+                applyScale();
+            }
+        });
+
+        // RESETAR (A)
+        btnReset.addEventListener('click', () => {
+            currentLevel = 1;
+            applyScale();
+        });
+
+        // --- Preservação de Estado ---
+
+        // Carrega o nível salvo ao carregar a página
+        const savedLevel = localStorage.getItem('fontLevel');
+        if (savedLevel !== null) {
+            currentLevel = parseInt(savedLevel);
+            applyScale(); // Aplica a fonte salva
+        }
+    </script>
+<script>
+  const toggleButton = document.getElementById('theme-toggle');
+  const body = document.body;
+
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    body.classList.add('dark-mode');
+    toggleButton.textContent = '☀️ Modo Claro';
+  }
+
+  toggleButton.addEventListener('click', () => {
+    body.classList.toggle('dark-mode');
+    if (body.classList.contains('dark-mode')) {
+      localStorage.setItem('theme', 'dark');
+      toggleButton.textContent = '☀️ Modo Claro';
+    } else {
+      localStorage.setItem('theme', 'light');
+      toggleButton.textContent = '🌙 Modo Escuro';
+    }
+  });
+</script>
+
+</body>
+</html>
   </body>
 </html> 
+
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+    document.addEventListener('DOMContentLoaded', () => {
+    // 1. Referências aos elementos
+    const corpo = document.body;
+    const aumentar = document.getElementById('btn-aumentar');
+    const diminuir = document.getElementById('btn-diminuir');
+    const resetar = document.getElementById('btn-resetar');
+    
+    let tamanhoAtual = 100; // Tamanho padrão em porcentagem (100%)
+
+    // 2. Função principal que altera e salva o tamanho da fonte
+    function alterarTamanho(variacao) {
+        tamanhoAtual += variacao;
+
+        // Definir limites: impede que a fonte fique muito pequena (80%) ou muito grande (150%)
+        if (tamanhoAtual < 80) tamanhoAtual = 80;
+        if (tamanhoAtual > 150) tamanhoAtual = 150;
+
+        // Aplica o novo tamanho
+        corpo.style.fontSize = tamanhoAtual + '%';
+        
+        // Salva a preferência do usuário (persiste a escolha entre páginas e sessões)
+        localStorage.setItem('acessibilidadeFonte', tamanhoAtual);
+    }
+
+    // 3. Carregar o tamanho salvo ao iniciar a página
+    const tamanhoSalvo = localStorage.getItem('acessibilidadeFonte');
+    if (tamanhoSalvo) {
+        // Converte o valor salvo de volta para um número inteiro
+        tamanhoAtual = parseInt(tamanhoSalvo);
+        corpo.style.fontSize = tamanhoAtual + '%';
+    }
+
+    // 4. Adicionar os eventos de clique aos botões
+    if (aumentar) {
+        aumentar.addEventListener('click', () => alterarTamanho(10)); // Aumenta em 10%
+    }
+    
+    if (diminuir) {
+        diminuir.addEventListener('click', () => alterarTamanho(-10)); // Diminui em 10%
+    }
+    
+    if (resetar) {
+        resetar.addEventListener('click', () => {
+            tamanhoAtual = 100;
+            corpo.style.fontSize = '100%';
+            // Remove a preferência para voltar ao padrão do CSS
+            localStorage.removeItem('acessibilidadeFonte'); 
+        });
+    }
+});
+</script>
+

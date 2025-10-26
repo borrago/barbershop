@@ -1,0 +1,59 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependências
+node_modules/
+bower_components/
+
+# Builds
+dist/
+build/
+coverage/
+.tmp/
+.cache/
+
+# IDEs / editores
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
+*.seed
+*.tar
+*.gz
+Dockerfile
+docker-compose.override.yml
+
+# Env / secrets
+.env
+.env.*
+/root/secrets/
+/root/infra/.env
+
+# Lint / test artifacts
+.eslintcache
+jest-coverage/
+
+# Frontend frameworks
+*.local
+*.tsbuildinfo
+
+# Outros temporários
+*.swp
+*.bak
+*.tmp
+*.orig
+
+# Backups
+*.old
+*.backup
