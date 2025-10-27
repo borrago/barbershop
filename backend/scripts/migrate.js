@@ -1,18 +1,29 @@
+// scripts/migrate.js
 const { Sequelize } = require('sequelize');
 const { Umzug, SequelizeStorage } = require('umzug');
 const path = require('path');
 require('dotenv').config();
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASS,
-  {
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
-    logging: false,
-  }
-);
+// Preferir URL única, com fallback para variáveis separadas
+const DATABASE_URL = process.env.DATABASE_URL;
+
+const sequelize = DATABASE_URL
+  ? new Sequelize(DATABASE_URL, {
+      dialect: 'postgres',
+      logging: false,
+      // dialectOptions: { ssl: { require: true, rejectUnauthorized: false } }, // se precisar de SSL
+    })
+  : new Sequelize(
+      process.env.DB_NAME,
+      process.env.DB_USER,
+      process.env.DB_PASS,
+      {
+        host: process.env.DB_HOST || 'postgres',
+        port: Number(process.env.DB_PORT) || 5432,
+        dialect: process.env.DB_DIALECT || 'postgres',
+        logging: false,
+      }
+    );
 
 const umzug = new Umzug({
   migrations: {
@@ -33,10 +44,13 @@ const umzug = new Umzug({
 
 (async () => {
   try {
+    await sequelize.authenticate();
     await umzug.up();
     process.exit(0);
   } catch (error) {
     console.error('Migration error:', error);
     process.exit(1);
+  } finally {
+    await sequelize.close().catch(() => {});
   }
 })();

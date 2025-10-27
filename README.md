@@ -57,7 +57,7 @@ A full-stack application for managing barbershops, clients, services, and appoin
 
 3. Configure the environment variables in `.env`:
    ```
-   VITE_API_URL=http://localhost:3001/api
+   VITE_API_BASE_URL=http://localhost:3001/api
    ```
 
 4. Start the development server:

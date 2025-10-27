@@ -1,4 +1,4 @@
-# docker-compose.yml — DropEntregas
+# docker-compose.yml — BarberShop
 # (sem "version" para evitar warning do Compose v2)
 
 networks:
@@ -11,13 +11,13 @@ services:
   ###################################
   # FRONT-END (Vite + Nginx)
   ###################################
-  drop-front:
+  barbershop-front:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: ${DROP_API_PUBLIC_URL}
-    image: ${REGISTRY:+${REGISTRY}/}drop-front:${TAG:-latest}
+    image: ${REGISTRY:+${REGISTRY}/}barbershop-front:${TAG:-latest}
     restart: unless-stopped
     networks:
       - traefik
@@ -25,21 +25,21 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik
-      - traefik.http.routers.drop-front.rule=Host(`${DROP_FRONT_HOST}`)
-      - traefik.http.routers.drop-front.entrypoints=https
-      - traefik.http.routers.drop-front.tls.certresolver=${CERT_RESOLVER}
-      - traefik.http.services.drop-front.loadbalancer.server.port=80
+      - traefik.http.routers.barbershop-front.rule=Host(`${DROP_FRONT_HOST}`)
+      - traefik.http.routers.barbershop-front.entrypoints=https
+      - traefik.http.routers.barbershop-front.tls.certresolver=${CERT_RESOLVER}
+      - traefik.http.services.barbershop-front.loadbalancer.server.port=80
     depends_on:
-      - drop-api
+      - barbershop-api
 
   ###################################
   # BACK-END (Express / Node)
   ###################################
-  drop-api:
+  barbershop-api:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: ${REGISTRY:+${REGISTRY}/}drop-api:${TAG:-latest}
+    image: ${REGISTRY:+${REGISTRY}/}barbershop-api:${TAG:-latest}
     restart: unless-stopped
     environment:
       # Porta interna do app
@@ -60,10 +60,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik
-      - traefik.http.routers.drop-api.rule=Host(`${DROP_API_HOST}`)
-      - traefik.http.routers.drop-api.entrypoints=https
-      - traefik.http.routers.drop-api.tls.certresolver=${CERT_RESOLVER}
-      - traefik.http.services.drop-api.loadbalancer.server.port=${DROP_API_PORT}
+      - traefik.http.routers.barbershop-api.rule=Host(`${DROP_API_HOST}`)
+      - traefik.http.routers.barbershop-api.entrypoints=https
+      - traefik.http.routers.barbershop-api.tls.certresolver=${CERT_RESOLVER}
+      - traefik.http.services.barbershop-api.loadbalancer.server.port=${DROP_API_PORT}
 
   ###################################
   # Espera pelos bancos do core

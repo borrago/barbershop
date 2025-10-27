@@ -35,8 +35,6 @@ Dockerfile
 docker-compose.override.yml
 
 # Env / secrets
-.env
-.env.*
 /root/secrets/
 /root/infra/.env
 
